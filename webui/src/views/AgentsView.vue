@@ -87,6 +87,15 @@ function getRoleBadgeClass(role: string) {
     }[role] ?? 'border-border bg-muted text-muted-foreground')
 }
 
+function getRoleBarClass(role: string) {
+    return ({
+        planner: 'bg-violet-400 dark:bg-violet-500',
+        executor: 'bg-sky-400 dark:bg-sky-500',
+        reviewer: 'bg-amber-400 dark:bg-amber-500',
+        patrol: 'bg-teal-400 dark:bg-teal-500',
+    }[role] ?? 'bg-muted-foreground/30')
+}
+
 function formatStatus(status: string) {
     return ({ active: '工作中', disabled: '已禁用' }[status] ?? status)
 }
@@ -454,8 +463,13 @@ async function handleDeleteAgent() {
                 <!-- 卡片网格 -->
                 <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <div v-for="(agent, idx) in pageData.items" :key="agent.id"
-                        class="group relative rounded-xl border border-border/50 bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-[var(--shadow-md)] hover:scale-[1.02] cursor-pointer animate-slide-up"
+                        class="group relative rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-200 hover:border-border hover:shadow-[var(--shadow-md)] hover:scale-[1.02] cursor-pointer animate-slide-up"
                         :style="{ animationDelay: `${idx * 40}ms` }" @click="openDetail(agent.id)">
+
+                        <!-- 角色色彩条 -->
+                        <div class="h-[3px] w-full" :class="getRoleBarClass(agent.role)" />
+
+                        <div class="p-4">
 
                         <!-- 顶部：状态点 + 名称 + 角色 -->
                         <div class="flex items-start justify-between gap-2 mb-2">
@@ -493,8 +507,8 @@ async function handleDeleteAgent() {
 
                         <Separator class="mb-3 opacity-50" />
 
-                        <!-- 操作按钮行 -->
-                        <div class="flex items-center gap-1" @click.stop>
+                        <!-- 操作按钮行（hover 时显示）-->
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200" @click.stop>
                             <TooltipProvider>
                                 <Button variant="ghost" size="sm" class="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
                                     @click="openEditDialogForAgent(agent)">
@@ -515,6 +529,7 @@ async function handleDeleteAgent() {
                                     删除
                                 </Button>
                             </TooltipProvider>
+                        </div>
                         </div>
                     </div>
                 </div>
