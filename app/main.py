@@ -31,6 +31,7 @@ from app.routers import (
     sub_tasks,
     tasks,
     tools,
+    webui,
 )
 from app.middleware.request_logger import RequestLoggerMiddleware
 
@@ -63,6 +64,10 @@ async def lifespan(app: FastAPI):
 
     # 清理过期请求日志
     _cleanup_old_request_logs()
+
+    # 确保 WebUI 前端存在（首次部署 / Docker 启动时自动从 GitHub Release 拉取）
+    from app.services.webui_updater import webui_updater
+    await webui_updater.ensure_webui_exists()
 
     print(f"[{config.project_name}] 服务启动 → http://{config.server_host}:{config.server_port}")
     print(f"[{config.project_name}] 数据库: {config.database_path}")
@@ -151,6 +156,7 @@ app.include_router(feed.router, prefix=API_PREFIX)
 app.include_router(prompts.router, prefix=API_PREFIX)
 app.include_router(tools.router, prefix=API_PREFIX)
 app.include_router(setup.router, prefix=API_PREFIX)
+app.include_router(webui.router, prefix=API_PREFIX)
 
 
 # ============================================================
